@@ -6,7 +6,7 @@ async function sendText() {
   const textInput = document.getElementById('textInput').value;
 
   if (textInput) {
-    const response = await fetch('http://localhost:8000/haikufy', {
+    const response = await fetch('http://127.0.0.1:8080/haikufy', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

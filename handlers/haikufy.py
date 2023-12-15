@@ -1,15 +1,10 @@
-from aiohttp.web_request import Request
-from aiohttp.web_response import json_response
-
 from configs import PROMPT_FILE_PATH
 
 with open(PROMPT_FILE_PATH, mode="r", encoding="utf-8-sig") as file:
     PROMPT = file.read().strip()
 
 
-async def haikufy(request: Request):
-    user_prompt: str = (await request.json())["text"]
-
+async def haikufy(user_prompt: str) -> dict:
     # response: ChatCompletion = openai_client.chat.completions.create(
     #   model="gpt-3.5-turbo-1106",
     #   messages=[{"role": "user", "content": PROMPT.format(user_prompt)}],
@@ -25,4 +20,8 @@ async def haikufy(request: Request):
 
     haiku_title = user_prompt[:50] + "..." if len(user_prompt) > 50 else user_prompt
 
-    return json_response(data={"userPrompt": user_prompt, "haikuTitle": haiku_title, "processedText": content})
+    return {
+        "userPrompt": user_prompt,
+        "haikuTitle": haiku_title,
+        "processedText": content,
+    }

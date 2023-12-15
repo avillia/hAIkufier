@@ -181,7 +181,7 @@ body * {
   justify-content: flex-start;
 }
 
-#result {
+#userHaikus {
   display: flex;
   flex-direction: column-reverse;
 }
@@ -200,6 +200,18 @@ body * {
 
 #prompter * {
   height: 100%;
+}
+
+.haiku-variants-container {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: space-evenly;
+}
+
+.haiku-variant {
+  width: 25%;
+  word-wrap: anywhere;
 }
 
 

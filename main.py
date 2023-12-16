@@ -5,6 +5,7 @@ from configs import STATIC_DIRECTORY_PATH
 from handlers.rpc import process_rpc
 from handlers.index import index
 
+
 app = Application()
 app.add_routes(
     [

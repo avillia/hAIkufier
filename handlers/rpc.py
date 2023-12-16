@@ -2,9 +2,11 @@ from aiohttp.web_request import Request
 from aiohttp.web_response import json_response
 
 from handlers.haikufy import haikufy
+from handlers.save_haiku import choose_haiku_variant
 
 method_table = {
     "haikufy": haikufy,
+    "saveHaiku": choose_haiku_variant,
 }
 
 

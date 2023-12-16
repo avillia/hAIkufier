@@ -14,7 +14,7 @@ function generateAPIcallId(length = 6) {
     return result;
 }
 
-async function callHaikufyRemoteProcedure(haiku_id, textInput) {
+async function callHaikufyRemoteProcedure(textInput) {
     return fetch(
         "http://127.0.0.1:8080/rpc",
         {
@@ -23,7 +23,7 @@ async function callHaikufyRemoteProcedure(haiku_id, textInput) {
             body: JSON.stringify(
                 {
                     jsonrpc: "2.0",
-                    id: haiku_id,
+                    id: generateAPIcallId(),
                     method: "haikufy",
                     params: [textInput],
                 }
@@ -32,9 +32,39 @@ async function callHaikufyRemoteProcedure(haiku_id, textInput) {
     );
 }
 
-function buildHaikuUI(haiku_id, data) {
+async function callSaveHaikuRemoteProcedure(haikuId, variantId){
+    return fetch(
+        "http://127.0.0.1:8080/rpc",
+        {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(
+                {
+                    jsonrpc: "2.0",
+                    id: generateAPIcallId(),
+                    method: "saveHaiku",
+                    params: [haikuId, variantId],
+                }
+            ),
+        }
+    );
+}
+
+function replaceHaikuVariantButtonsWithChosenText(sectionToCleanUp, chosenText) {
+    const haikuText = document.createElement("p");
+    haikuText.innerText = chosenText;
+    sectionToCleanUp.replaceWith(haikuText);
+}
+
+async function chooseHaikuVariant(haikuID, variant_id, sectionToCleanUp) {
+    const response = await callSaveHaikuRemoteProcedure(haikuID, variant_id);
+    const data = await response.json();
+    replaceHaikuVariantButtonsWithChosenText(sectionToCleanUp, data.text);
+}
+
+function buildHaikuUI(haikuId, data) {
     const haiku = document.createElement("section");
-    haiku.id = haiku_id
+    haiku.id = haikuId;
 
     const title = document.createElement("h2");
     title.innerText = data.haikuTitle;
@@ -42,23 +72,29 @@ function buildHaikuUI(haiku_id, data) {
 
     haiku.appendChild(title);
 
+    const haikuVariantsContainer = document.createElement("section");
+    haikuVariantsContainer.className = "haiku-variants-container";
+
     // create HTMLElements for each haiku variant
     const haikuVariants = data.haikuVariants.map(
         (haikuVariantFromResponse) => {
             const haikuVariant = document.createElement("button");
             haikuVariant.innerText = haikuVariantFromResponse.text;
-            haikuVariant.id = haikuVariantFromResponse.id;
+            const variantId = haikuVariantFromResponse.id
+            haikuVariant.id = variantId;
             haikuVariant.className = "haiku-variant";
             haikuVariant.addEventListener(
                 "click",
-                () => alert(haikuVariantFromResponse.id)
+                () => chooseHaikuVariant(
+                    haikuId,
+                    variantId,
+                    haikuVariantsContainer,
+                )
             );
             return haikuVariant;
         }
     );
 
-    const haikuVariantsContainer = document.createElement("section");
-    haikuVariantsContainer.className = "haiku-variants-container";
     haikuVariants.map(variant => haikuVariantsContainer.appendChild(variant));
 
     haiku.appendChild(haikuVariantsContainer);
@@ -72,12 +108,13 @@ async function sendText() {
     const textInput = document.getElementById("textInput").value;
 
     if (textInput) {
-        const haiku_id = generateAPIcallId();
-        const response = await callHaikufyRemoteProcedure(haiku_id, textInput);
+        const response = await callHaikufyRemoteProcedure(textInput);
 
-        const data = await response.json();
+        const content = await response.json();
 
-        const haiku = buildHaikuUI(haiku_id, data)
+        const [haikuId, data] = [content.haikuId, content.haikuData];
+
+        const haiku = buildHaikuUI(haikuId, data)
 
         document.getElementById("userHaikus").appendChild(haiku);
 

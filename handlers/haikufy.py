@@ -28,7 +28,7 @@ async def haikufy(user_prompt: str) -> dict:
 
     haiku_id = generate_random_string(8)
 
-    choices = [generate_random_string(256) for _ in range(3)]
+    choices = ["\n".join(generate_random_string(16) for _ in range(3)) for _ in range(3)]
 
     haiku_variants = {generate_random_string(8): choice for choice in choices}
 
